@@ -28,6 +28,7 @@ public class Couleur extends DefaultTableCellRenderer
               cell.setBackground(Color.white);
           }    
           if (column == 7 )
+              //test
           {
             Float cellule = (Float)value;
             if ((value != null) && (cellule < 0))
