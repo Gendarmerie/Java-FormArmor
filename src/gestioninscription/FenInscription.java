@@ -6,6 +6,8 @@ package gestioninscription;
 import java.awt.Color;
 import java.awt.Label;
 import java.sql.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 //import java.util.logging.Level;
 //import java.util.logging.Logger;
 import sql.*;
@@ -173,7 +175,16 @@ public class FenInscription extends javax.swing.JFrame {
           // Affichage du nom prénom et de la liste des sessions autorisées
         if (evt.getStateChange() != 1) // Pour éviter le déclenchement sur la création de la fenêtre
         {
-            renseigne();
+            try
+            {
+                renseigne();
+            } catch (ClassNotFoundException ex)
+            {
+                Logger.getLogger(FenInscription.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (SQLException ex)
+            {
+                Logger.getLogger(FenInscription.class.getName()).log(Level.SEVERE, null, ex);
+            }
 		
         }
     }//GEN-LAST:event_jComboBox1ItemStateChanged
@@ -206,9 +217,18 @@ public class FenInscription extends javax.swing.JFrame {
     }//GEN-LAST:event_jTable1MouseClicked
 
     private void formWindowActivated(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowActivated
-        renseigne();
+        try
+        {
+            renseigne();
+        } catch (ClassNotFoundException ex)
+        {
+            Logger.getLogger(FenInscription.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex)
+        {
+            Logger.getLogger(FenInscription.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_formWindowActivated
-    private void renseigne()
+    private void renseigne() throws ClassNotFoundException, SQLException
     {
         try
         {
@@ -234,16 +254,16 @@ public class FenInscription extends javax.swing.JFrame {
             }
             else
             {
-                // Sélection des sessions "autorisées"
-                req = "select c.nom, s.id, f.libelle, f.niveau, date_debut, duree, nb_places, nb_inscrits, coutrevient ";
-                req += "from session_formation s, client c, plan_formation p, formation f ";
-                req += "where c.id = '" + jComboBox1.getSelectedItem() + "' ";
-                req += "and p.client_id = c.id and nb_places > nb_inscrits ";
-                req += "and p.formation_id = f.id ";
-                req += "and s.formation_id = f.id ";
-                // et date supérieure à la date du jour
-                req += "and close = 0 and effectue = 0 and s.id Not In ";
-                req += "(Select session_formation_id From inscription Where id = '" + jComboBox1.getSelectedItem() + "')";
+                Class.forName("org.gjt.mm.mysql.Driver");
+              String cochaine = "jdbc:mysql://localhost/formarmor";
+              conn = DriverManager.getConnection(cochaine,"root","");
+              String sql = "{call sessions_autorisees(?)}"; 
+              CallableStatement call = conn.prepareCall(sql); //initialiser le conn
+              call.setInt("id_client", Integer.parseInt(jComboBox1.getSelectedItem().toString()));
+              call.execute();
+                // Sélection des sessions          
+               req = "select nom_client, session_id, libelle_formation, niveau_formation, date_debut, duree, nb_places, nb_inscrits, coutrevient "
+                       + " from sessions_autorisees";
                 if (jTable1.getValueAt(jTable1.getSelectedRow(), 0) != null) //Si la cellule sélectionnée est vide
                 {
                     jButton1.setVisible(false); // On rend le bouton inscription non visible

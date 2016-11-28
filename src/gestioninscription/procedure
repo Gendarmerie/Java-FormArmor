@@ -1,0 +1,21 @@
+DELIMITER $$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sessions_autorisees`(IN `id_client` INT)
+
+BEGIN
+
+	TRUNCATE TABLE sessions_autorisees;
+	
+INSERT INTO sessions_autorisees (nom_client,session_id,libelle_formation,niveau_formation,date_debut,duree,nb_places,nb_inscrits,coutrevient)(SELECT c.nom, s.id, f.libelle, f.niveau, date_debut, duree, nb_places, nb_inscrits, coutrevient 
+FROM session_formation s, client c, plan_formation p, formation f WHERE c.id = id_client and p.client_id = c.id and nb_places > nb_inscrits 
+	and p.formation_id = f.id and s.formation_id = f.id 
+	
+and close = 0 and effectue = 0 
+	and s.id Not In (Select session_formation_id From inscription Where id = id_client));
+    
+
+END$$
+
+DELIMITER ;
+
+
