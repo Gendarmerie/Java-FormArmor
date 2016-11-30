@@ -263,7 +263,7 @@ public class FenInscription extends javax.swing.JFrame {
               call.execute();
                 // Sélection des sessions          
                req = "select nom_client, session_id, libelle_formation, niveau_formation, date_debut, duree, nb_places, nb_inscrits, coutrevient "
-                       + " from sessions_autorisees";
+                       + " from sessions_autorisees where client_id = " + jComboBox1.getSelectedItem().toString();
                 if (jTable1.getValueAt(jTable1.getSelectedRow(), 0) != null) //Si la cellule sélectionnée est vide
                 {
                     jButton1.setVisible(false); // On rend le bouton inscription non visible
